@@ -5,7 +5,6 @@ from conans import ConanFile, AutoToolsBuildEnvironment, tools
 
 class MdkSdkConan(ConanFile):
     name = "mdk-sdk"
-    version = "0.12.0"
     license = "proprietary"
     url = "https://github.com/Tereius/conan-mdk-sdk"
     description = "Multimedia development kit"
@@ -13,7 +12,8 @@ class MdkSdkConan(ConanFile):
     homepage = "https://github.com/wang-bin/mdk-sdk"
     settings = ("os", "compiler", "arch", "build_type")
 
-    def source(self):
+
+    def build(self):
         switcher = {
             "Windows": "mdk-sdk-windows-desktop.7z",
             "WindowsStore": "mdk-sdk-uwp.7z",
@@ -23,8 +23,13 @@ class MdkSdkConan(ConanFile):
             "iOS": "mdk-sdk-iOS.tar.xz"
         }
 
-        tools.get("https://github.com/wang-bin/mdk-sdk/releases/download/v%s/%s" % (
-        self.version, switcher.get(str(self.settings.os))))
+        if self.version == "latest":
+            tools.download("https://downloads.sourceforge.net/project/mdk-sdk/nightly/%s" % (
+            switcher.get(str(self.settings.os))), switcher.get(str(self.settings.os)))
+        else:
+            tools.download("https://github.com/wang-bin/mdk-sdk/releases/download/v%s/%s" % (
+            self.version, switcher.get(str(self.settings.os))), switcher.get(str(self.settings.os)))
+        self.run("cmake -E tar xzf %s" % switcher.get(str(self.settings.os)))
 
     def package(self):
         self.copy("*", src="mdk-sdk")
