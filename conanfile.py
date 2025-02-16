@@ -1,43 +1,84 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from conans import ConanFile, AutoToolsBuildEnvironment, tools
+import json, os
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import copy, download
+
+required_conan_version = ">=2.0"
+
 
 class MdkSdkConan(ConanFile):
-    name = "mdk-sdk"
-    license = "proprietary"
-    url = "https://github.com/Tereius/conan-mdk-sdk"
-    description = "Multimedia development kit"
-    author = "wang-bin"
-    homepage = "https://github.com/wang-bin/mdk-sdk"
-    settings = ("os", "compiler", "arch", "build_type")
+    jsonInfo = json.load(open("info.json", 'r'))
+    # ---Package reference---
+    name = jsonInfo["projectName"]
+    version = jsonInfo["version"]
+    user = jsonInfo["domain"]
+    channel = "stable"
+    # ---Metadata---
+    description = jsonInfo["projectDescription"]
+    license = jsonInfo["license"]
+    author = jsonInfo["vendor"]
+    topics = jsonInfo["topics"]
+    homepage = jsonInfo["homepage"]
+    url = jsonInfo["repository"]
+    # ---Requirements---
+    requires = []
+    tool_requires = ["cmake/[~3]"]
+    # ---Sources---
+    exports = ["info.json"]
+    exports_sources = []
+    # ---Binary model---
+    package_type = "shared-library"
+    settings = "os", "compiler", "build_type", "arch"
+    options = {}
+    default_options = {}
+    # ---Folders---
+    no_copy_source = True
 
+    @property
+    def android_arch_folder(self):
+        return {
+            "armv7": "armeabi-v7a",
+            "armv8": "arm64-v8a",
+            "x86": "x86",
+            "x86_64": "x86_64",
+        }.get(str(self.settings.arch), None)
+
+    def validate(self):
+        valid_os = ["Windows", "Linux", "Android"]
+        if str(self.settings.os) not in valid_os:
+            raise ConanInvalidConfiguration(
+                f"{self.name} {self.version} is only supported for the following operating systems: {valid_os}")
+        valid_arch = ["x86_64", "x86", "armv7", "armv8"]
+        if str(self.settings.arch) not in valid_arch:
+            raise ConanInvalidConfiguration(
+                f"{self.name} {self.version} is only supported for the following architectures on {self.settings.os}: {valid_arch}")
 
     def build(self):
-        switcher = {
-            "Windows": "mdk-sdk-windows-desktop.7z",
-            "WindowsStore": "mdk-sdk-uwp.7z",
-            "Linux": "mdk-sdk-linux.tar.xz",
-            "Macos": "mdk-sdk-macOS.tar.xz",
-            "Android": "mdk-sdk-android.7z",
-            "iOS": "mdk-sdk-iOS.tar.xz"
-        }
-
-        if self.version == "latest":
-            tools.download("https://downloads.sourceforge.net/project/mdk-sdk/nightly/%s" % (
-            switcher.get(str(self.settings.os))), switcher.get(str(self.settings.os)))
-        else:
-            tools.download("https://github.com/wang-bin/mdk-sdk/releases/download/v%s/%s" % (
-            self.version, switcher.get(str(self.settings.os))), switcher.get(str(self.settings.os)))
-        self.run("cmake -E tar xzf %s" % switcher.get(str(self.settings.os)))
+        download(self, **self.conan_data["sources"]["mdksdk"][str(self.version)][str(self.settings.os)])
+        self.run("cmake -E tar xzf %s" % self.conan_data["sources"]["mdksdk"][str(self.version)][str(self.settings.os)]["filename"])
 
     def package(self):
-        self.copy("*", src="mdk-sdk")
+        if self.settings.os == "Linux":
+            copy(self, "include/*", src="mdk-sdk", dst=self.package_folder)
+            copy(self, "libmdk.so*", src=os.path.join("mdk-sdk", "lib", "amd64"), dst=os.path.join(self.package_folder, "lib"))
+            copy(self, "libc++.so*", src=os.path.join("mdk-sdk", "lib", "amd64"), dst=os.path.join(self.package_folder, "lib"))
+        if self.settings.os == "Windows":
+            copy(self, "include/*", src="mdk-sdk", dst=self.package_folder)
+            copy(self, "mdk.lib", src=os.path.join("mdk-sdk", "lib", "x64"), dst=os.path.join(self.package_folder, "lib"))
+            copy(self, "mdk.dll", src=os.path.join("mdk-sdk", "bin", "x64"), dst=os.path.join(self.package_folder, "bin"))
+        elif self.settings.os == "Android":
+            copy(self, "include/*", src="mdk-sdk", dst=self.package_folder)
+            copy(self, "libmdk.so", src=os.path.join("mdk-sdk", "lib", self.android_arch_folder), dst=os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
-        self.cpp_info.builddirs = ['lib/cmake']
+        self.cpp_info.set_property("cmake_file_name", "mdk-sdk")
+        self.cpp_info.set_property("cmake_find_mode", "both")
+        self.cpp_info.components["mdk"].set_property("cmake_target_name", "MDK::mdk")
+        self.cpp_info.components["mdk"].set_property("cmake_find_mode", "both")
 
     def package_id(self):
         del self.info.settings.compiler
-        del self.info.settings.arch
         del self.info.settings.build_type

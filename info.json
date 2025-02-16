@@ -1,0 +1,13 @@
+{
+  "version": "0.31.0",
+  "projectName": "mdk-sdk",
+  "projectDescription": "Multimedia development kit",
+  "vendor": "Björn Stresing",
+  "contact": "bjoern.stresing@gmx.de",
+  "domain": "com.github.tereius",
+  "copyrightYear": "2020",
+  "repository": "https://github.com/Tereius/conan-mdk-sdk",
+  "topics": ["ffmpeg"],
+  "homepage": "https://github.com/wang-bin/mdk-sdk",
+  "license": "proprietary"
+}

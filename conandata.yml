@@ -1,0 +1,19 @@
+sources:
+  "mdksdk":
+    "0.31.0":
+      "Linux":
+        url: "https://github.com/wang-bin/mdk-sdk/releases/download/v0.31.0/mdk-sdk-linux-x64.tar.xz"
+        sha1: "8a7af0c23794c9157e27999646c016a97fec7aad"
+        filename: "mdk-sdk.tar.xz"
+      "Macos":
+        url: "https://github.com/wang-bin/mdk-sdk/releases/download/v0.31.0/mdk-sdk-macOS.tar.xz"
+        sha1: "6a10591ef900d93a4236131a3fcafd73044fd45e"
+        filename: "mdk-sdk.tar.xz"
+      "Windows":
+        url: "https://github.com/wang-bin/mdk-sdk/releases/download/v0.31.0/mdk-sdk-windows-desktop-clang.7z"
+        sha1: "7512874a5d9cff55aab26d2f0ddbdc9104516f9a"
+        filename: "mdk-sdk.7z"
+      "Android":
+        url: "https://github.com/wang-bin/mdk-sdk/releases/download/v0.31.0/mdk-sdk-android.7z"
+        sha1: "f243e2ff51b9c73a79167ffd9fd9cf2e0b3455a4"
+        filename: "mdk-sdk.7z"
