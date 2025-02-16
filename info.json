@@ -4,10 +4,10 @@
   "projectDescription": "Multimedia development kit",
   "vendor": "Björn Stresing",
   "contact": "bjoern.stresing@gmx.de",
-  "domain": "com.github.tereius",
-  "copyrightYear": "2020",
-  "repository": "https://github.com/Tereius/conan-mdk-sdk",
-  "topics": ["ffmpeg"],
+  "domain": "de.privatehive",
+  "copyrightYear": "2025",
+  "repository": "https://github.com/Privatehive/conan-mdk-sdk",
+  "topics": ["multimedia"],
   "homepage": "https://github.com/wang-bin/mdk-sdk",
   "license": "proprietary"
 }
