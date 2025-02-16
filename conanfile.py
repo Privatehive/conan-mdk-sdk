@@ -76,8 +76,9 @@ class MdkSdkConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "mdk-sdk")
         self.cpp_info.set_property("cmake_find_mode", "both")
-        self.cpp_info.components["mdk"].set_property("cmake_target_name", "MDK::mdk")
+        self.cpp_info.components["mdk"].set_property("cmake_target_name", "mdk::mdk")
         self.cpp_info.components["mdk"].set_property("cmake_find_mode", "both")
+        self.cpp_info.components["mdk"].libs = ["mdk"]
 
     def package_id(self):
         del self.info.settings.compiler
